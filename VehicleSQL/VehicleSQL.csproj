@@ -33,6 +33,7 @@
   <ItemGroup>
     <Reference Include="0Harmony">
       <HintPath>..\..\Lib\0Harmony.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Assembly-CSharp">
       <HintPath>F:\SteamLibrary\steamapps\common\Unturned\Unturned_Data\Managed\Assembly-CSharp.dll</HintPath>
@@ -48,6 +49,7 @@
     </Reference>
     <Reference Include="PlayerLibrary">
       <HintPath>..\..\Lib\PlayerLibrary.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Rocket.API">
       <HintPath>F:\SteamLibrary\steamapps\common\Unturned\Modules\Rocket.Unturned\Rocket.API.dll</HintPath>
@@ -88,7 +90,6 @@
     <Compile Include="Command\CommandGv.cs" />
     <Compile Include="Command\CommandSv.cs" />
     <Compile Include="Command\CommandVl.cs" />
-    <Compile Include="Method.cs" />
     <Compile Include="Model\Vehicles.cs" />
     <Compile Include="MyBlock.cs" />
     <Compile Include="Patch.cs" />

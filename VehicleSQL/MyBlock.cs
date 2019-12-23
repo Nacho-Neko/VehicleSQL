@@ -1,6 +1,7 @@
 ﻿using Steamworks;
 using System;
 using UnityEngine;
+using Logger = Rocket.Core.Logging.Logger;
 
 namespace VehicleSQL
 {
@@ -10,6 +11,7 @@ namespace VehicleSQL
         private byte[] block;
 
         private byte[] buffer = new byte[65535];
+
         private bool longBinaryData = false;
         public MyBlock(byte[] contents)
         {
@@ -24,7 +26,7 @@ namespace VehicleSQL
         {
             if (step == 0)
             {
-                return null;
+                return new byte[0];
             }
 
             byte[] temp = new byte[step];
@@ -70,7 +72,7 @@ namespace VehicleSQL
 
         public void writeBytes(byte[] values)
         {
-            if (block != null)
+            if (buffer != null)
             {
                 writeByteArray(values);
                 return;
@@ -167,6 +169,10 @@ namespace VehicleSQL
 
         public byte[] readByteArray()
         {
+#if DEBUG
+            Logger.LogError("block.Length " + block.Length.ToString());
+#endif
+
             if (block != null && step < block.Length)
             {
                 byte[] array;
@@ -181,9 +187,12 @@ namespace VehicleSQL
                 }
                 else
                 {
-                    byte b = block[step];
-                    array = new byte[b];
+                    array = new byte[(block[step])];
                     step++;
+
+#if DEBUG
+                    Logger.LogError("array.Length " + array.Length.ToString());
+#endif
                 }
                 if (step + array.Length <= block.Length)
                 {
@@ -201,6 +210,7 @@ namespace VehicleSQL
             }
             return new byte[0];
         }
+
 
         public short readInt16()
         {
@@ -244,21 +254,27 @@ namespace VehicleSQL
 
         public void writeByteArray(byte[] values)
         {
+            if (values.Length >= 30000)
+            {
+                return;
+            }
             if (longBinaryData)
             {
-                writeInt32(values.Length);
+                this.writeInt32(values.Length);
+                Buffer.BlockCopy(values, 0, buffer, this.step, values.Length);
+                this.step += values.Length;
+                return;
             }
-            else
-            {
-                buffer[step] = (byte)values.Length;
-                step++;
-            }
-            if (values.Length < 30000)
-            {
-                Buffer.BlockCopy(values, 0, buffer, step, values.Length);
-                step += values.Length;
-            }
+            int b = values.Length;
+#if DEBUG
+            Logger.LogError("values.Length" + b.ToString());
+#endif
+            buffer[step] = (byte)b;
+            step++;
+            Buffer.BlockCopy(values, 0, buffer, step, b);
+            step += b;
         }
+
 
 
         public bool readBoolean()

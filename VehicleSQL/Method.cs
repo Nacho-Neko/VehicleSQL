@@ -18,13 +18,7 @@ namespace VehicleSQL
             CheckSchema();
         }
 
-        private void CheckSchema()
-        {
-            if (PlayerLibrary.PlayerLibrary.CheckTable("Vehicles"))
-            {
-                PlayerLibrary.PlayerLibrary.CreateTables("CREATE TABLE `Vehicles` ( `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, `player` int(10) UNSIGNED NOT NULL, `vehicle` smallint(5) UNSIGNED NOT NULL, `health` smallint(5) UNSIGNED DEFAULT NULL, `fuel` smallint(5) UNSIGNED DEFAULT NULL, `batteryCharge` smallint(5) UNSIGNED DEFAULT NULL, `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP, `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, PRIMARY KEY (`id`), KEY `vehicles_player` USING HASH (`player`), CONSTRAINT `vehicles_player` FOREIGN KEY (`player`) REFERENCES `Players` (`id`) ON DELETE CASCADE ON UPDATE CASCADE ) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARSET = utf8;");
-            }
-        }
+
 
         private static uint allocateInstanceID()
         {
@@ -97,16 +91,18 @@ namespace VehicleSQL
                             ItemAsset itemAsset = (ItemAsset)Assets.find(EAssetType.ITEM, vehicleAsset.turrets[(int)b2].itemID);
                             if (itemAsset != null)
                             {
-                                interactableVehicle.turrets[(int)b2].state = itemAsset.getState();
+                                interactableVehicle.turrets[b2].state = itemAsset.getState();
                             }
                             else
                             {
-                                interactableVehicle.turrets[(int)b2].state = null;
+                                interactableVehicle.turrets[b2].state = null;
                             }
                             b2 += 1;
                         }
                     }
                 }
+
+
                 if (passengers != null)
                 {
                     byte b3 = 0;
@@ -156,6 +152,8 @@ namespace VehicleSQL
 
                 bool sirens =false, blimp = false, headlights = false, taillights = false, isExploded = false;
                 ItemJar[] array2 = null;
+                byte[][] turrets = null;
+
                 if (vehicles.state != null)
                 {
                     MyBlock block = new MyBlock(vehicles.state);
@@ -166,14 +164,19 @@ namespace VehicleSQL
                     taillights = block.readBoolean();
                     isExploded = block.readBoolean();
 
-                    byte[][] turrets = new byte[(int)block.readByte()][];
+
+
+                    turrets = new byte[block.readByte()][];
                     byte b2 = 0;
-                    while ((int)b2 < turrets.Length)
+
+                    while (b2 < turrets.Length)
                     {
-                        turrets[(int)b2] = block.readByteArray();
-                        b2 += 1;
+                        turrets[b2] = block.readByteArray();
+                        b2 ++;
                     }
+
                     bool flag = block.readBoolean();
+
                     if (flag)
                     {
                         array2 = new ItemJar[(int)block.readByte()];
@@ -197,9 +200,8 @@ namespace VehicleSQL
                     }
                 }
 
-
-                InteractableVehicle interactableVehicle = addVehicle(vehicles.vehicle, 0, 0, 0f, point, angle, sirens, blimp, headlights, taillights, vehicleAsset.fuel, isExploded, vehicleAsset.health, vehicles.batteryCharge, owner, group, locked, null, null, InstanceID, 255);
-                if (interactableVehicle != null && array2 != null && array2.Length != 0 && interactableVehicle.trunkItems != null && interactableVehicle.trunkItems.height > 0)
+                InteractableVehicle interactableVehicle = addVehicle(vehicles.vehicle, 0, 0, 0f, point, angle, false, false, false, false, vehicles.fuel, isExploded, vehicles.health, vehicles.batteryCharge, owner, group, locked, null, turrets, InstanceID, 255);
+                if ((interactableVehicle != null & true) && array2 != null && array2.Length != 0 && interactableVehicle.trunkItems != null && interactableVehicle.trunkItems.height > 0)
                 {
                     byte b4 = 0;
                     while ((int)b4 < array2.Length)
@@ -212,6 +214,9 @@ namespace VehicleSQL
                         b4 += 1;
                     }
                 }
+
+
+
                 
                 vehicleManager.channel.openWrite();
                 sendVehicle(VehicleManager.vehicles[VehicleManager.vehicles.Count - 1]);
