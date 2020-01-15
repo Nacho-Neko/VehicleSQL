@@ -33,7 +33,7 @@ namespace VehicleSQL.Command
                 {
                     PlayerInfo playerInfo = PlayerLibrary.PlayerLibrary.GetPlayerByCSteam(Player.CSteamID.m_SteamID);
 
-                    Vehicles vehicles = new Vehicles((uint)playerInfo.player.Id, vehicle.id, vehicle.health, vehicle.fuel, vehicle.batteryCharge);
+                    Vehicles vehicles = new Vehicles((uint)playerInfo.player.Id, vehicle.id, vehicle.health, vehicle.fuel, vehicle.batteryCharge, vehicle.tireAliveMask);
 
                     if (BarricadeManager.tryGetPlant(vehicle.transform, out byte x, out byte y, out ushort plant, out BarricadeRegion barricadeRegion))
                     {
@@ -47,6 +47,8 @@ namespace VehicleSQL.Command
 
                             Rocket.Unturned.Chat.UnturnedChat.Say(caller, "保存车辆成功!");
 
+
+                            
                             VehicleSQL.Db.Insertable(vehicles).ExecuteCommand();
                             VehicleManager.askVehicleDestroy(vehicle);
                         }

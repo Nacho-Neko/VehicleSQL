@@ -115,7 +115,7 @@ namespace VehicleSQL.Command
 
 
             uint InstanceID = VehicleSQL.Instance.allocateInstanceID();
-            VehicleSQL.Instance.AddVehicle(vehicle.vehicle, 0, 0, 0f, vector, Player.Player.transform.rotation, sirens, blimp, headlights, taillights, vehicle.fuel, false, vehicle.health, vehicle.batteryCharge, Player.CSteamID, Player.SteamGroupID, true, null, turrets, InstanceID, 255);
+            VehicleSQL.Instance.AddVehicle(vehicle.vehicle, 0, 0, 0f, vector, Player.Player.transform.rotation, sirens, blimp, headlights, taillights, vehicle.fuel, false, vehicle.health, vehicle.batteryCharge, Player.CSteamID, Player.SteamGroupID, true, null, turrets, InstanceID, vehicle.tireAliveMask);
 
             /*
             VehicleSQL.vehicleManager.channel.openWrite();

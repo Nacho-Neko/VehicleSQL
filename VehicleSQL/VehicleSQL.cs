@@ -12,7 +12,7 @@ using Logger = Rocket.Core.Logging.Logger;
 
 namespace VehicleSQL
 {
-    public class VehicleSQL : RocketPlugin
+    public class VehicleSQL : RocketPlugin<VehicleSQLConfiguration>
     {
         public static VehicleSQL Instance;
         public static VehicleManager vehicleManager;
@@ -27,18 +27,17 @@ namespace VehicleSQL
 
             Db = PlayerLibrary.DbMySQL.Db;
 
-
             Type type = typeof(VehicleManager);
             FieldInfo manager = type.GetField("manager", BindingFlags.Static | BindingFlags.NonPublic);
             vehicleManager = (VehicleManager)manager.GetValue(null);
             addVehicle = type.GetMethod("addVehicle", BindingFlags.Instance | BindingFlags.NonPublic);
 
+            Db.MappingTables.Add("Vehicles", Configuration.Instance.TableName);
 
-            if (PlayerLibrary.DbMySQL.CheckTable("Vehicles"))
+            if (PlayerLibrary.DbMySQL.CheckTable(Configuration.Instance.TableName))
             {
-                PlayerLibrary.DbMySQL.CreateTables("CREATE TABLE `Vehicles` ( `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, `player` int(10) UNSIGNED NOT NULL, `vehicle` smallint(5) UNSIGNED NOT NULL, `health` smallint(5) UNSIGNED DEFAULT NULL, `fuel` smallint(5) UNSIGNED DEFAULT NULL, `batteryCharge` smallint(5) UNSIGNED DEFAULT NULL,`state` blob DEFAULT NULL, `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP, `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, PRIMARY KEY (`id`), KEY `vehicles_player` USING HASH (`player`), CONSTRAINT `vehicles_player` FOREIGN KEY (`player`) REFERENCES `Players` (`id`) ON DELETE CASCADE ON UPDATE CASCADE ) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARSET = utf8;");
+                PlayerLibrary.DbMySQL.CreateTables("CREATE TABLE `" + Configuration.Instance.TableName + "` ( `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, `player` int(10) UNSIGNED NOT NULL, `vehicle` smallint(5) UNSIGNED NOT NULL, `health` smallint(5) UNSIGNED DEFAULT NULL, `fuel` smallint(5) UNSIGNED DEFAULT NULL, `batteryCharge` smallint(5) UNSIGNED DEFAULT NULL,`tireAliveMask` tinyint(3) UNSIGNED DEFAULT NULL,`state` blob DEFAULT NULL, `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP, `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, PRIMARY KEY (`id`), KEY `vehicles_player` USING HASH (`player`), CONSTRAINT `vehicles_player` FOREIGN KEY (`player`) REFERENCES `Players` (`id`) ON DELETE CASCADE ON UPDATE CASCADE ) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARSET = utf8;");
             }
-
 
             var harmony = HarmonyInstance.Create("com.hana.vehiclesql");
             var spawnVehicle = typeof(VehicleManager).GetMethod("spawnVehicleInternal", BindingFlags.NonPublic | BindingFlags.Static);

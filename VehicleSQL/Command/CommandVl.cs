@@ -37,10 +37,10 @@ namespace VehicleSQL.Command
                 {
                     str += "ID:" + vehicle.vehicle;
                 }
-                UnturnedChat.Say("你当前保存的载具有:" + str);
+                UnturnedChat.Say(Player,"你当前保存的载具有:" + str);
             }
             else {
-                UnturnedChat.Say("你一个载具也没有保存!");
+                UnturnedChat.Say(Player,"你一个载具也没有保存!");
             }
 
             
