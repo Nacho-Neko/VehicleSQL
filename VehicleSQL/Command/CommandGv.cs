@@ -112,8 +112,6 @@ namespace VehicleSQL.Command
                     }
                 }
             }
-
-
             uint InstanceID = VehicleSQL.Instance.allocateInstanceID();
             VehicleSQL.Instance.AddVehicle(vehicle.vehicle, 0, 0, 0f, vector, Player.Player.transform.rotation, sirens, blimp, headlights, taillights, vehicle.fuel, false, vehicle.health, vehicle.batteryCharge, Player.CSteamID, Player.SteamGroupID, true, null, turrets, InstanceID, vehicle.tireAliveMask);
 
@@ -124,16 +122,21 @@ namespace VehicleSQL.Command
             Transform transform = VehicleManager.vehicles[VehicleManager.vehicles.Count - 1].transform;
             BarricadeManager.askPlants(transform);
             */
-
             VehicleSQL.vehicleManager.channel.openWrite();
             VehicleSQL.vehicleManager.sendVehicle(VehicleManager.vehicles[VehicleManager.vehicles.Count - 1]);
             Transform transform = VehicleManager.vehicles[VehicleManager.vehicles.Count - 1].transform;
             VehicleSQL.vehicleManager.channel.closeWrite("tellVehicle", ESteamCall.OTHERS, ESteamPacket.UPDATE_RELIABLE_CHUNK_BUFFER);
             BarricadeManager.askPlants(transform);
-
             VehicleSQL.Db.Deleteable(vehicle).ExecuteCommand();
-
-            VehicleSQL.pairs.Add(Player.CSteamID.m_SteamID, InstanceID);
+            if (VehicleSQL.pairs.ContainsKey(Player.CSteamID.m_SteamID))
+            {
+                VehicleSQL.pairs[Player.CSteamID.m_SteamID] = InstanceID;
+            }
+            else
+            {
+                VehicleSQL.pairs.Add(Player.CSteamID.m_SteamID, InstanceID);
+            }
+           
         }
 
         public void sendVehicle(InteractableVehicle vehicle)

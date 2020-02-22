@@ -25,30 +25,20 @@ namespace VehicleSQL.Command
         public void Execute(IRocketPlayer caller, string[] command)
         {
             UnturnedPlayer Player = (UnturnedPlayer)caller;
-            if (VehicleSQL.pairs.ContainsKey(Player.CSteamID.m_SteamID))
+            if (VehicleSQL.pairs.TryGetValue(Player.CSteamID.m_SteamID,out uint instanceID))
             {
-                uint instanceID = VehicleSQL.pairs[Player.CSteamID.m_SteamID];
                 InteractableVehicle vehicle = VehicleManager.getVehicle(instanceID);
-                if (vehicle.lockedOwner.m_SteamID == Player.CSteamID.m_SteamID)
+                if (vehicle != null && vehicle.lockedOwner.m_SteamID == Player.CSteamID.m_SteamID)
                 {
                     PlayerInfo playerInfo = PlayerLibrary.PlayerLibrary.GetPlayerByCSteam(Player.CSteamID.m_SteamID);
-
                     Vehicles vehicles = new Vehicles((uint)playerInfo.player.Id, vehicle.id, vehicle.health, vehicle.fuel, vehicle.batteryCharge, vehicle.tireAliveMask);
-
                     if (BarricadeManager.tryGetPlant(vehicle.transform, out byte x, out byte y, out ushort plant, out BarricadeRegion barricadeRegion))
                     {
-
-
                         if (!vehicle.isDead)
                         {
                             vehicles.state = GetState(vehicle);
-
                             VehicleSQL.pairs.Remove(Player.CSteamID.m_SteamID);
-
                             Rocket.Unturned.Chat.UnturnedChat.Say(caller, "保存车辆成功!");
-
-
-                            
                             VehicleSQL.Db.Insertable(vehicles).ExecuteCommand();
                             VehicleManager.askVehicleDestroy(vehicle);
                         }
@@ -73,27 +63,20 @@ namespace VehicleSQL.Command
             }
         }
 
-
         public static byte[] GetState(InteractableVehicle interactableVehicle)
         {
-
             MyBlock block = new MyBlock();
-
             block.writeBoolean(interactableVehicle.sirensOn);
             block.writeBoolean(interactableVehicle.isBlimpFloating);
             block.writeBoolean(interactableVehicle.headlightsOn);
             block.writeBoolean(interactableVehicle.taillightsOn);
-
             if (interactableVehicle.turrets != null)
             {
                 byte b = (byte)interactableVehicle.turrets.Length;
                 block.writeByte(b);
-
-
 #if DEBUG
                 Logger.Log(b.ToString());
  #endif
-
                 for (byte b2 = 0; b2 < b; b2++)
                 {
                     Passenger passenger = interactableVehicle.turrets[b2];
